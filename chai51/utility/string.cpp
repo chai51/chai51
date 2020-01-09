@@ -1,5 +1,6 @@
 // utf8中文
 #include <chai51/utility/string.h>
+#include <sstream>
 #include <regex>
 #include <boost/locale.hpp>
 #include <boost/archive/iterators/base64_from_binary.hpp>
@@ -48,7 +49,6 @@ void trim(std::string& str, char ch /*= ' '*/)
 std::string base64Encode(const std::string& str)
 {
 	std::string encode;
-
 	typedef boost::archive::iterators::base64_from_binary<boost::archive::iterators::transform_width<std::string::const_iterator, 6, 8> > base64EncodeIterator;
 	copy(base64EncodeIterator(str.begin()), base64EncodeIterator(str.end()), std::back_inserter(encode));
 	size_t equal_count = (3 - str.length() % 3) % 3;
@@ -61,18 +61,20 @@ std::string base64Encode(const std::string& str)
 
 std::string base64Decode(const std::string& str)
 {
-	std::string decode;
-
+	uint32_t index = str.length();
+	if ('=' == str[index-2] && '=' == str[index-1])
+	{
+		index = index - 2;
+	}
+	else if ('=' == str[index-1])
+	{
+		index = index - 1;
+	}
+	
+	std::stringstream ss;
 	typedef boost::archive::iterators::transform_width<boost::archive::iterators::binary_from_base64<std::string::const_iterator>, 8, 6> base64DecodeIterator;
-	try
-	{
-		copy(base64DecodeIterator(str.begin()), base64DecodeIterator(str.end()), std::back_inserter(decode));
-	}
-	catch (std::exception &e)
-	{
-		return e.what();
-	}
-	return "";
+	std::copy(base64DecodeIterator(str.begin()), base64DecodeIterator(str.begin() + index), std::ostream_iterator<char>(ss));
+	return ss.str();
 }
 
 void split(const std::string & str, const std::string & separator, std::vector<std::string>& vec)

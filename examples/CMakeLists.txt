@@ -1,6 +1,6 @@
 
 # 开始执行子项目
-add_subdirectory (${CMAKE_CURRENT_SOURCE_DIR}/string)
+add_subdirectory (${CMAKE_CURRENT_SOURCE_DIR}/utility)
 
 # 拷贝依赖库
 #exec_program(mkdir ARGS " -p ${PROJECT_BINARY_DIR}/lib")
